@@ -197,10 +197,7 @@ struct Strategy {
             return {{"X", tx}, {"Y", ty}, {"Debug", sstream.str()}, split};
         }
         catch (std::exception &e) {
-            //std::ostringstream sstream;
             sstream << " STATE: " << state << " tx/y " << tx << " " << ty << " current_purpose " << current_purpose;
-            //std::string copyOfStr = stringStream.str();
-            //write_err_log("on_tick " + string(e.what()) + sstream.str());
             throw std::runtime_error("on_tick " + string(e.what()) + sstream.str());
             exit(1);
         }
@@ -212,8 +209,7 @@ struct Strategy {
     }
 
 
-    State gather(double &tx, double &ty)
-    {
+    State gather(double &tx, double &ty) {
         // find center of masses & try to gather
         Point c = find_center_point(mine);
         if (consider_moving(mine, c.x, c.y, config)) {
@@ -227,12 +223,6 @@ struct Strategy {
 
     template <class T>
     void try_random_flee(const T &player, Point e, Point &safest, const T &config, bool ignore_viruses) {
-        /*Point p_curr(player["X"], player["Y"]);
-        auto range = 1 * (double)player["R"];
-        auto angle = (rand() % 360) * M_PI / 180.;
-
-        Point pot = new_point_by_vector(p_curr, angle, range);
-        */
         auto rf = 2 * (double)player["R"];
         auto rx = rand() % (2 * (int)(rf+1)) - rf + 1;
         auto ry = rand() % (2 * (int)(rf+1)) - rf + 1;
@@ -264,8 +254,6 @@ struct Strategy {
 
                 if (!current_target.empty())
                     e.set(current_target["X"], current_target["Y"]);
-                /*else if (!prev_target.empty())
-                    e.set(prev_target["X"], prev_target["Y"]);*/
                 else {
                     flee_count--;
                     sstream << ":Lost targ: ";
@@ -487,13 +475,13 @@ struct Strategy {
         json nearest_food;
 
         try {
-            double min_f_dist = 0, min_f_angle = 0;
+            double min_f_dist = 0;
             for (auto &f: food_list) {
                 if (f.empty()) continue;
                 auto fx = (double)f["X"], fy = (double)f["Y"];
                 double curr_f_dist = mine_obj_dist(mine, f);
-                //double curr_f_angle = player_obj_angle(biggest_player(mine), f);
-                if (!nearest_food.empty() && curr_f_dist > min_f_dist/* && curr_f_angle > min_f_angle*/)
+
+                if (!nearest_food.empty() && curr_f_dist > min_f_dist)
                     continue;
 
                 if (consider_moving(mine, fx, fy, config)) {
@@ -503,7 +491,7 @@ struct Strategy {
             }
 
 
-            // when player is heave and clumsy, better not to chose, just take anything!
+            // when player is heavy and clumsy, better not to chose, just take anything!
             bool chasing = false;
 
             //auto pm = (double)biggest_player(mine)["M"];
@@ -585,14 +573,6 @@ struct Strategy {
         try {
             auto count = 20;
             do {
-
-                /*Point p_curr(player["X"], player["Y"]);
-                auto range = 1 * (double)player["R"];
-                auto angle = (rand() % 360) * M_PI / 180.;
-
-                Point pot = new_point_by_vector(p_curr, angle, range);
-                */
-
                 auto p = biggest_player(mine);
                 double px = p["X"], py = p["Y"], rf = p["R"];
                 auto rx = rand() % (2 * (int)(rf+1)) - rf + 1;
@@ -637,11 +617,6 @@ struct Strategy {
 
     template <class T>
     json biggest_player(const T& mine) {
-        /*json biggest = mine[0];
-        for (auto &p : mine) {
-            if ((double)p["M"] > (double)biggest["M"])
-                biggest = p;
-        }*/
         return mine[0];
     }
 
@@ -728,7 +703,6 @@ struct Strategy {
                     else if (o["T"] == "P" && o["Id"] == target["Id"])
                         return true;
                 }
-
             }
 
             return false;
@@ -784,13 +758,11 @@ struct Strategy {
                 auto pr2 = pr/2;
                 // map boundaries
                 if (x-pr2 < 0 || y-pr2 < 0 || x+pr2 > (double)config["GAME_WIDTH"]-1 || y+pr2 > (double)config["GAME_HEIGHT"]-1) {
-                    //sstream << "_m.";
                     return false;
                 }
 
                 // check for viruses
                 if (!ignore_viruses && pm > 120. && virus_on_way(player, p_targ, config, true)) {
-                    //sstream << "_v.";
                     return false;
                 }
 
@@ -806,7 +778,6 @@ struct Strategy {
                     bool targ_closer_than_curr = dist(p_targ, c_enemy.c) < dist(p_curr, c_enemy.c);
                     bool path_intersects = line_crosses && targ_closer_than_curr;
                     if ( mass_danger && (targ_intersects || (!curr_intersects && path_intersects)) ) {
-                        //sstream << "_e" << targ_intersects << (!curr_intersects && path_intersects) << ".";
                         return false;
                     }
                 }
